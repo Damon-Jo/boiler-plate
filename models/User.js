@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const myPlaintextPassword = 's0/\/\P4$$w0rD';
-const someOtherPlaintextPassword = 'not_bacon';
+
+const jwt = require('jsonwebtoken');
+
 
 const userSchema = mongoose.Schema({
     name: {
@@ -54,9 +55,67 @@ userSchema.pre('save', function(next){
     } else {
         next()
     }
-
-  
 })
+
+userSchema.methods.comparePassword = function(plainPassword, cb){
+
+    //plainPassword 1234567 ==? Bcrypt Password
+    bcrypt.compare(plainPassword, this.password, function(err, isMatch){
+        if(err) return cb(err);
+        cb(null, isMatch)
+    })
+}
+
+userSchema.methods.generateToken = async function(cb){
+
+    var user = this;
+
+    // generate token using jsonwebtoken
+    var token = jwt.sign(user._id.toHexString(), 'secretToken')
+    // user._id + 'secretToken' = token
+    // ->
+    // 'secretToken' -> user._id
+    user.token = token;
+
+    await user
+    .save()
+    .then((user)=>{
+        // if(err){
+        //     console.log('err', err)
+        //     return cb(err)
+        // }
+        cb(null, user)
+    })
+
+
+    // user.save(function(err, user){
+    //     if(err) return cb(err);
+    //     cb(null, user)
+    // })
+}
+
+userSchema.statics.findByToken = function(token, cb){
+    var user = this;
+    
+    // decode token
+    jwt.verify(token, 'secretToken', function(err, decoded){
+        // find the user using id
+        // client token id ==? DB token id
+        user.findOne({"_id": decoded, "token": token})
+        .then((user)=>{
+            // if(!user) return cb(err);
+            cb(null, user)
+        })
+        .catch((err)=>{
+            console.log('err', err)
+            cb(err)
+        })
+    })
+
+}
+
+
+
 
 const User = mongoose.model('User', userSchema)
 
