@@ -105,6 +105,16 @@ app.get('/app/users/auth', auth, (req,res)=>{
 
 })
 
+app.get('/api/users/logout', auth, (req,res)=>{
+  User.findOneAndUpdate({_id: req.user._id}, {token: ""})
+  .then((user)=>{
+    if(!user) return res.json({success: false})
+    return res.status(200).send({
+      success: true
+    })
+  })
+})
+
 
 
 app.listen(port, () => {
