@@ -7,7 +7,7 @@
     "start": "node index.js",
     "backend": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev" : "concurrently \"npm run backend\" \"npm run start --prefix client\" "
+    "dev": "concurrently \"npm run backend\" \"npm run start --prefix client\" "
   },
   "author": "kwanyong",
   "license": "ISC",
@@ -19,7 +19,8 @@
     "express": "^4.18.2",
     "http-proxy-middleware": "^2.0.6",
     "jsonwebtoken": "^9.0.0",
-    "mongoose": "^7.0.3"
+    "mongoose": "^7.0.3",
+    "react-use-navigate": "^0.1.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
